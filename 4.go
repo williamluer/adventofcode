@@ -21,24 +21,20 @@ func main() {
 	re := regexp.MustCompile(`\d+`)
 
 	sum := 0
-	i := 0
+	i := 1
 	for scanner.Scan() {
 		currentLine := scanner.Text()
 		numbers := re.FindAllString(currentLine, -1)
 		winningNumbers := numbers[1:11]
 		guessedNumbers := numbers[11:]
-		fmt.Println(winningNumbers, guessedNumbers)
 		intersection := intersect.Simple(winningNumbers, guessedNumbers)
 		nWins := len(intersection)
-		fmt.Println(intersection)
-		fmt.Println(nWins)
+		fmt.Println(i, " has ", nWins)
 		if nWins > 0 {
 			points := math.Pow(2, float64(nWins-1))
-			fmt.Println(points)
 			sum += int(points)
 		}
-		fmt.Println()
-
+		i += 1
 	}
 	fmt.Println(sum)
 	if err := scanner.Err(); err != nil {
