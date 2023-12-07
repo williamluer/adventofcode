@@ -22,25 +22,17 @@ func convertToInts(s []string) []int {
 func getVal(inputSlice []MapRow, currentVal int) int {
 	var output int
 	var closestRow MapRow
-	// fmt.Println("currentVal ", currentVal)
-	// fmt.Println("maprow ", inputSlice)
 	for i := 0; i < len(inputSlice); i++ {
 		if i == len(inputSlice)-1 && inputSlice[i].sourceStart < currentVal {
-			// This case happens when we are at the end of the slice
-			// it could be within range or it could not be
 			closestRow = inputSlice[i]
 		} else if i == 0 && inputSlice[i].sourceStart > currentVal {
-			// This happens if currentVal is less than the first element.
-			// Always return self
 			return currentVal
 		} else if i == 0 && inputSlice[i].sourceStart == currentVal {
 			return inputSlice[i].destinationStart
 		} else if inputSlice[i].sourceStart > currentVal {
-			// this happens if it's in the middle
 			closestRow = inputSlice[i-1]
 			break
 		} else if inputSlice[i].sourceStart == currentVal {
-			// This happens if it's equal
 			return inputSlice[i].destinationStart
 		}
 	}
@@ -107,23 +99,6 @@ func main() {
 			seedToSoil = append(seedToSoil, currentRow)
 		}
 
-		// if i == 0 {
-		// 	seeds = vals
-		// } else if i > 30 {
-		// 	humidityToLocation = append(humidityToLocation, currentRow)
-		// } else if i > 26 {
-		// 	temperatureToHumidity = append(temperatureToHumidity, currentRow)
-		// } else if i > 21 {
-		// 	lightToTemperature = append(lightToTemperature, currentRow)
-		// } else if i > 17 {
-		// 	waterToLight = append(waterToLight, currentRow)
-		// } else if i > 11 {
-		// 	fertilizerToWater = append(fertilizerToWater, currentRow)
-		// } else if i > 6 {
-		// 	soilToFertilizer = append(soilToFertilizer, currentRow)
-		// } else if i > 2 {
-		// 	seedToSoil = append(seedToSoil, currentRow)
-		// }
 		i += 1
 	}
 
