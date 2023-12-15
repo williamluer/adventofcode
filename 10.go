@@ -64,9 +64,35 @@ func findNextDirection(grid [][]string, r int, c int, visited map[int]bool) (int
 	return -10000000000, -10000000000
 }
 
-func findMaxPath(grid [][]string, r int, c int, visited map[int]bool) int {
+func findMaxPath(grid [][]string, r int, c int, visited map[int]bool, visitedWalls map[int]bool, visitedL map[int]bool, visited7 map[int]bool, visitedJ map[int]bool, visitedF map[int]bool) int {
 	visited[r*len(grid[0])+c] = true
+	if grid[r][c] == "|" {
+		visitedWalls[r*len(grid[0])+c] = true
+	}
+	if grid[r][c] == "L" {
+		visitedL[r*len(grid[0])+c] = true
+
+	}
+	if grid[r][c] == "7" {
+		visited7[r*len(grid[0])+c] = true
+	}
+	if grid[r][c] == "J" {
+		visitedJ[r*len(grid[0])+c] = true
+	}
+	if grid[r][c] == "F" {
+		visitedF[r*len(grid[0])+c] = true
+	}
+
 	newRow, newCol := findNextDirection(grid, r, c, visited)
+
+	// for r := 1; r < len(grid)-1; r++ {
+	// 	for c := 1; c < len(grid[0])-1; c++ {
+	// 		fmt.Print(grid[r][c])
+	// 	}
+	// 	fmt.Println()
+	// }
+	// fmt.Println()
+
 	if len(visited) == 1 {
 		grid[r][c] = "X"
 	} else {
@@ -76,13 +102,22 @@ func findMaxPath(grid [][]string, r int, c int, visited map[int]bool) int {
 	if grid[newRow][newCol] == "X" || !ok {
 		return 1
 	} else {
-		return 1 + findMaxPath(grid, newRow, newCol, visited)
+		return 1 + findMaxPath(grid, newRow, newCol, visited, visitedWalls, visitedL, visited7, visitedJ, visitedF)
 	}
+}
+
+func isWall(s string) bool {
+	return s == "┃" || s == "┗" || s == "┛" //|| s == "┏" || s == "┓"
 }
 
 func main() {
 	filename := "10.txt"
 	visited := make(map[int]bool)
+	visitedWalls := make(map[int]bool)
+	visitedL := make(map[int]bool)
+	visited7 := make(map[int]bool)
+	visitedJ := make(map[int]bool)
+	visitedF := make(map[int]bool)
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -117,17 +152,92 @@ func main() {
 	for r := 1; r < len(pipeGrid)-1; r++ {
 		for c := 1; c < len(pipeGrid[0])-1; c++ {
 			if pipeGrid[r][c] == "S" {
-				maxPath = findMaxPath(pipeGrid, r, c, visited)
-			}
-			if pipeGrid[r][c] == "|" {
-
+				maxPath = findMaxPath(pipeGrid, r, c, visited, visitedWalls, visitedL, visited7, visitedJ, visitedF)
 			}
 		}
 	}
 	fmt.Println(maxPath)
 
+	const gridSize = 142
+	var visitedGrid [gridSize][gridSize]string
+	for r := 0; r < gridSize; r++ {
+		for c := 0; c < gridSize; c++ {
+			visitedGrid[r][c] = "."
+		}
+	}
+
+	for k, _ := range visited {
+		row := k / gridSize
+		col := k % gridSize
+		visitedGrid[row][col] = "━"
+	}
+	for k, _ := range visitedWalls {
+		row := k / gridSize
+		col := k % gridSize
+		visitedGrid[row][col] = "┃"
+	}
+	for k, _ := range visitedL {
+		row := k / gridSize
+		col := k % gridSize
+		// Corner character
+		visitedGrid[row][col] = "┗"
+	}
+	for k, _ := range visited7 {
+		row := k / gridSize
+		col := k % gridSize
+		// Corner character
+		visitedGrid[row][col] = "┓"
+	}
+	for k, _ := range visitedJ {
+		row := k / gridSize
+		col := k % gridSize
+		visitedGrid[row][col] = "┛"
+	}
+	for k, _ := range visitedF {
+		row := k / gridSize
+		col := k % gridSize
+		visitedGrid[row][col] = "┏"
+	}
+	// fmt.Println(visitedGrid)
+	enclosedSpaces := 0
+	type Spot struct {
+		row int
+		col int
+	}
+
+	for r := 1; r < len(visitedGrid)-1; r++ {
+		nWalls := 0
+		tentativeSpaces := 0
+		tentativeSpaceList := make([]Spot, 0)
+		for c := 1; c < len(visitedGrid[0])-1; c++ {
+			if isWall(visitedGrid[r][c]) {
+				nWalls++
+			}
+			if nWalls%2 == 1 && visitedGrid[r][c] == "." {
+				tentativeSpaces++
+				tentativeSpaceList = append(tentativeSpaceList, Spot{row: r, col: c})
+			}
+			if nWalls%2 == 0 {
+				enclosedSpaces += tentativeSpaces
+				tentativeSpaces = 0
+				for _, s := range tentativeSpaceList {
+					visitedGrid[s.row][s.col] = "I"
+				}
+				tentativeSpaceList = []Spot{}
+			}
+		}
+		tentativeSpaceList = []Spot{}
+	}
+	for r := 1; r < len(visitedGrid)-1; r++ {
+		for c := 1; c < len(visitedGrid[0])-1; c++ {
+			fmt.Print(visitedGrid[r][c])
+		}
+		fmt.Println()
+	}
+	fmt.Println("Enclosed spaces ", enclosedSpaces)
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 	file.Close()
+
 }
