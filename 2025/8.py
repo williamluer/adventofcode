@@ -45,6 +45,10 @@ def union(point1: tuple, point2: tuple) -> bool:
 
     elif p1_parent != p2_parent:
         # set p2 to p1 (could do union by rank though)
+        if set_size[p1_parent] >= set_size[p2_parent]:
+            parents[p2_parent] = parents[p1_parent]
+            set_size[p1_parent] += set_size[p2_parent]
+            set_size[p2_parent] = 0
         parents[p2_parent] = p1_parent
         return True  # return parent of set?
 
@@ -53,9 +57,14 @@ n_merged = 0
 while n_merged < 10:
     shortest_dist, point1, point2 = heapq.heappop(distances)
     print(f"on {shortest_dist=} {point1=} {point2=}")
-    if union(point1, point2):
-        print(f"Merged {point1} and {point2}")
-        n_merged += 1
+    # if union(point1, point2):
+    union(point1, point2)
+    print(f"Merged {point1} and {point2}")
+    n_merged += 1
 
-for k, v in parents.items():
-    print(k, v)
+sizes = []
+for k, v in set_size.items():
+    sizes.append(v)
+
+s = sorted(sizes, reverse=True)
+print(f"Ans: {s[0] * s[1] * s[2]}")
